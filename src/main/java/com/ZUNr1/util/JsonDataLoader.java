@@ -42,9 +42,8 @@ public class JsonDataLoader {
     }
     public static List<CharactersJson> loadCharacters(){
         //这是从classpath加载JSON数据的标准方法，
-        try {
-            InputStream inputStream = JsonDataLoader.class.getClassLoader()
-                    .getResourceAsStream("data/characters.json");
+        try (InputStream inputStream = JsonDataLoader.class.getClassLoader()
+                    .getResourceAsStream("data/characters.json")){
             //inputStream是用来接收数据流，
             //JsonDataLoader.class是我们这个类本身，是我的位置（基准点）
             //.getClassLoader()作用：获取加载这个类的类加载器
@@ -65,5 +64,6 @@ public class JsonDataLoader {
             throw new RuntimeException("加载角色数据失败: " + e.getMessage(), e);
             //这个异常是要catch的
         }
+        //上述代码是一个try-with-resources，相当于在finally语句块中关闭了input流
     }
 }
