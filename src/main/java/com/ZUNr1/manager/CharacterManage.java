@@ -105,6 +105,17 @@ public class CharacterManage {
         }
     }
 
+    public void clearAll(){
+        //清空所有内容
+        charactersMap.clear();
+        charactersList.clear();
+        afflatusIndex.clear();
+        damageTypeIndex.clear();
+        rarityIndex.clear();
+        genderIndex.clear();
+        termIndex.clear();
+    }
+
 
     public Characters findById(String id){
         return charactersMap.get(id);

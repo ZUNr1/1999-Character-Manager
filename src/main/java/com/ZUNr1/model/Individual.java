@@ -108,6 +108,10 @@ public abstract class Individual {
         return usedTerm;
     }
 
+    public Skills getSkills() {
+        return skills;
+    }
+
     @Override
     public boolean equals(Object obj){//equals编写先检查是不是本身，再看是不是空，，再看是不是同一类
         if (this == obj){
