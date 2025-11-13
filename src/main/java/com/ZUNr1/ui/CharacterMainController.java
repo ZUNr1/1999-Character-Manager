@@ -1,7 +1,9 @@
 package com.ZUNr1.ui;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 public class CharacterMainController {
@@ -49,8 +51,13 @@ public class CharacterMainController {
         //这一行获得所有标签然后添加所有我们要加的标签
         root.setCenter(tabPane);
     }
-    private VBox createBasicInformationTab(){
-        VBox content = new VBox(15);
+    private GridPane createBasicInformationTab(){
+        GridPane content = new GridPane();//GridPane布局可以像表格一样划分
+        content.setHgap(10);//设置水平间距
+        content.setVgap(15);//设置垂直间距
+        content.setPadding(new Insets(20));
+        //为 GridPane 布局容器设置内边距
+        //内边距 (Padding) 会在 GridPane 的内容区域和边框之间创建空白空间。
         content.setStyle("-fx-padding: 20px;");
 
         Label titleLabel = new Label("角色基本信息");
@@ -108,6 +115,22 @@ public class CharacterMainController {
         damageTypeComboBox.getItems().setAll("现实创伤","精神创伤","本源创伤");
         damageTypeComboBox.setPromptText("请选择角色创伤类型");
 
+        content.add(titleLabel,0,0,2,1);
+        //将 titleLabel 添加到 GridPane 中，从第 0 列第 0 行开始，横跨 2 列，占据 1 行。
+        content.add(idLabel,0,1);
+        //不跨行就两个参数，列和行
+        content.add(idField,1,1);
+        content.add(nameLabel,0,2);
+        content.add(nameField,1,2);
+        content.add(rarityLabel,0,3);
+        content.add(raritySpinner,1,3);
+        content.add(genderLabel, 0, 4);
+        content.add(genderComboBox, 1, 4);
+        content.add(afflatusLabel,0,5);
+        content.add(afflatusComboBox,1,5);
+        content.add(damageTypeLabel,0,6);
+        content.add(damageTypeComboBox,1,6);
+        return content;
     }
     private VBox createSkillInformationTab(){
 
