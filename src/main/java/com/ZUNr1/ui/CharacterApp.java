@@ -23,5 +23,4 @@ public class CharacterApp extends Application {
     private Parent createBasicInterface() {
         return new VBox();
     }
-
 }
