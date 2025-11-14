@@ -1,13 +1,17 @@
 package com.ZUNr1.ui;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CharacterMainController {
     private BorderPane root;
+    private List<TextField> extraSkillFields = new ArrayList<>();
+
     public CharacterMainController(){
         createInterface();
     }
@@ -15,7 +19,7 @@ public class CharacterMainController {
         root = new BorderPane();
 
         //中心标题
-        Label titleLabel = new Label("角色管理系统");
+        Label titleLabel = new Label("角色信息录入系统");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-padding: 20px;");
         root.setTop(titleLabel);
 
@@ -132,8 +136,128 @@ public class CharacterMainController {
         content.add(damageTypeComboBox,1,6);
         return content;
     }
-    private VBox createSkillInformationTab(){
+    private GridPane createSkillInformationTab(){
+        GridPane content = new GridPane();
+        content.setHgap(10);
+        content.setVgap(15);
+        content.setPadding(new Insets(20));
+        //我们要解决每一列我们的布局是不一样的，放输入框的应该长一点，接收长段文字
+        //使用ColumnConstraints可以控制页面的布局，每一列（竖列）的布局设置
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setHgrow(Priority.NEVER);
+        col1.setPrefWidth(100);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setHgrow(Priority.NEVER);
+        //限制不扩展，优先级低的操作不能改变布局
+        //Always是尽可能扩展到最大
+        col2.setPrefWidth(200);
+        //设置首选的宽度（长度）
+        //布局优先级顺序：
+        //1.  ColumnConstraints/RowConstraints (最高优先级)
+        //2.  父容器的布局策略 (GridPane、VBox等)
+        //3.  组件自身的setPrefSize() (最低优先级)
+        content.getColumnConstraints().addAll(col1, col2);
+        //为GridPane的第0列设置col1规则，第1列设置col2规则
 
+        int currentRow = 0;
+
+        Label titleLabel = new Label("神秘术信息");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        content.add(titleLabel,0,currentRow,2,1);
+        currentRow++;
+
+        Label skillNameLabel = new Label("神秘术名称");
+        skillNameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        content.add(skillNameLabel,0,currentRow,2,1);
+        currentRow++;
+        //神秘术I
+        Label skill1NameLabel = new Label("神秘术I");
+        TextField skill1NameField = new TextField();
+        skill1NameField.setPromptText("请输入神秘术名称");
+        content.add(skill1NameLabel,0,currentRow);
+        //第二列够长，不用横跨
+        content.add(skill1NameField,1,currentRow);
+        currentRow++;
+        //神秘术II
+        Label skill2NameLabel = new Label("神秘术II");
+        TextField skill2NameField = new TextField();
+        skill2NameField.setPromptText("请输入神秘术名称");
+        content.add(skill2NameLabel,0,currentRow);
+        content.add(skill2NameField,1,currentRow);
+        currentRow++;
+        //至终的仪式
+        Label skill3NameLabel = new Label("至终的仪式");
+        TextField skill3NameField = new TextField();
+        skill3NameField.setPromptText("请输入至终的仪式名称");
+        content.add(skill3NameLabel,0,currentRow);
+        content.add(skill3NameField,1,currentRow);
+        currentRow++;
+        //额外技能区域
+        Label extraSkillsNameLabel = new Label("额外神秘术");
+        content.add(extraSkillsNameLabel,0,currentRow);
+
+        Button extraSkillsAdd = new Button("+ 添加额外技能");
+        content.add(extraSkillsAdd,1,currentRow);
+        currentRow++;
+
+        VBox extraSkillsContainer = new VBox(10);//间距10像素
+        //将其所有子节点（控件）在垂直方向（Vertical）上一个接一个地排列。
+        //这个布局接收所有可能的额外技能，添加额外技能就在这个布局上修改
+        extraSkillsContainer.setStyle("-fx-padding: 10px; -fx-border-color: #bdc3c7; -fx-border-width: 1;");
+        content.add(extraSkillsContainer,0,currentRow,2,1);
+
+        extraSkillsAdd.setOnAction(actionEvent -> addExtraSkills(extraSkillsContainer));
+        //思路是使用VBox和HBox，添加
+
+
+        return content;
+    }
+    private void addExtraSkills(VBox container){
+        HBox skillRow = new HBox(10);//间距10像素
+        //将其所有子节点在水平方向（Horizontal）上一个接一个地排列。
+        skillRow.setAlignment(Pos.CENTER_LEFT);
+        //设置子节点在容器内垂直居中、水平靠左对齐
+        skillRow.setStyle("-fx-padding: 8px; -fx-border-color: #ecf0f1;-fx-border-width: 1; -fx-background-color: #f8f9fa;");
+
+        Label extraSkillNameLabel = new Label("额外神秘术名称");
+        TextField extraSkillNameField = new TextField();
+        extraSkillNameField.setPromptText("请输入额外神秘术名称");
+
+        Button removeExtraSkill = new Button("删除");
+        removeExtraSkill.setOnAction
+                (actionEvent -> {
+                    container.getChildren().remove(skillRow);
+                    //删除这个组件，skillRow不再被container引用
+                    //所以后续代码还会执行，但是不再关联container
+                    extraSkillFields.remove(extraSkillNameField);
+                    //把存的对应数据的List里面的值也删除了
+                });
+        skillRow.getChildren().addAll(extraSkillNameLabel,extraSkillNameField,removeExtraSkill);
+        //把组件加入HBox，就会水平排序
+        container.getChildren().add(skillRow);
+        //把HBox加入总布局
+        //注意，这行代码是在button按下前执行的，先关联container，然后再处理
+        extraSkillFields.add(extraSkillNameField);
+    }
+    private GridPane createSkill(String skillInformation,int startRow){
+        GridPane skillPane = new GridPane();
+        skillPane.setHgap(8);
+        skillPane.setVgap(10);
+        skillPane.setPadding(new Insets(12));
+        skillPane.setStyle("-fx-border-color: #bdc3c7; -fx-border-width: 1; -fx-background-color: #ecf0f1;");
+
+        int row = 0;
+        Label nameLabel = new Label("神秘术名称");
+        TextField nameField = new TextField();
+        nameField.setPromptText("请输入" + skillInformation + "名称");
+        skillPane.add(nameLabel,0,row);
+        skillPane.add(nameField,1,row,3,1);
+        row++;
+
+        Label level1Label = new Label("一星牌");
+
+
+        return new GridPane();
     }
     private GridPane createAttributesInformationTab(){
         GridPane content = new GridPane();
@@ -207,10 +331,10 @@ public class CharacterMainController {
         return field;
     }
     private VBox createOtherInformationTab(){
-
+        return new VBox(new Label("开发中"));
     }
     private VBox createUsedTermInformationTab(){
-
+        return new VBox(new Label("开发中"));
     }
 
     public BorderPane getRoot() {

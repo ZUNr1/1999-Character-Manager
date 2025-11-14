@@ -47,7 +47,7 @@ public class Skills {
         sb.append("=== 技能图鉴 ===\n");
         sb.append(String.format("技能1: %s\n", arcaneSkill1.getSkillName()));
         sb.append(String.format("技能2: %s\n", arcaneSkill2.getSkillName()));
-        sb.append(String.format("大招: %s\n", arcaneSkill3.getSkillName()));
+        sb.append(String.format("至终的仪式: %s\n", arcaneSkill3.getSkillName()));
 
         if (!extraSkills.isEmpty()) {
             sb.append("额外技能:\n");
