@@ -1,14 +1,18 @@
 package com.ZUNr1.ui;
 
+import javafx.application.Platform;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Stack;
 
 public class CharacterMainController {
     private BorderPane root;
@@ -38,9 +42,13 @@ public class CharacterMainController {
     private Map<String,TextArea> inheritanceFields = new HashMap<>();
     private Map<String,TextArea> portraitFields = new HashMap<>();
 
+    private Map<String,TextField> usedTermNameFields = new HashMap<>();
+    private Map<String,TextArea> usedTermDescribeFields = new HashMap<>();
+
     public CharacterMainController(){
         createInterface();
     }
+
     private void createInterface(){
         root = new BorderPane();
 
@@ -80,7 +88,135 @@ public class CharacterMainController {
                         otherInformationTab,usedTermInformationTab);
         //这一行获得所有标签然后添加所有我们要加的标签
         root.setCenter(tabPane);
+
+        HBox buttonBox = createButtonBox();
+        root.setBottom(buttonBox);
+
+        setUpWindowsCloseHandle();
+        //设置关闭窗口时的操作
     }
+    private void setUpWindowsCloseHandle(){
+        Platform.runLater(() -> {
+            // 这行代码的意思是："等当前代码执行完后，在JavaFX应用线程中执行括号里的代码"
+            //"当前代码"指的是调用 setupWindowCloseHandler() 方法的代码。
+            // - 在构造函数中，root可能还没有被添加到Scene
+            // - 在Scene显示之前，getScene()可能返回null
+            // - runLater确保在界面完全初始化后再执行
+        Stage stage = (Stage)root.getScene().getWindow();
+        // 这时候root已经确定在Scene中了，所以getScene()不会返回null
+        stage.setOnCloseRequest(event -> {
+            // 设置窗口关闭事件监听器
+            // 当用户点击窗口的X按钮时，会触发这个事件
+            event.consume();
+            //这是阻止事件的默认执行，默认是关闭程序，我们阻止，然后才能运行后面的代码显示提示框
+            showExitConfirmation();
+            //这是执行操作，我们在里面实现显示提示框与关闭程序
+        });
+        });
+
+    }
+    private void showExitConfirmation() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("退出程序");
+        alert.setHeaderText("真的要离开我吗 😢");
+        alert.setContentText("是否要退出程序？未保存的数据将会丢失。");
+
+        // 普通按钮版本（防止误按Enter）
+        ButtonType exitButton = new ButtonType("狠心离开");
+        ButtonType stayButton = new ButtonType("再陪陪你");
+        alert.getButtonTypes().setAll(exitButton, stayButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == exitButton) {
+            Platform.exit(); // 退出程序
+        }
+        // 如果点击"再陪陪你"或关闭对话框，什么都不做（窗口保持打开）
+    }
+    private HBox createButtonBox(){
+        HBox buttonBox = new HBox(20);
+        buttonBox.setPadding(new Insets(15));
+        buttonBox.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-width: 1 0 0 0;");
+        buttonBox.setAlignment(Pos.CENTER);
+        //setAlignment() 方法用于设置容器内所有子元素的对齐方式
+        //Pos.CENTER 是一个常量，表示居中对齐
+        Button confirmButton = new Button("确认录入");
+        confirmButton.setStyle("-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 16;");
+        confirmButton.setOnAction(actionEvent -> confirmInput());
+
+        Button clearButton = new Button("重新开始");
+        clearButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 16;");
+        clearButton.setOnAction(actionEvent -> createNewCharacter());
+
+        buttonBox.getChildren().addAll(confirmButton,clearButton);
+        return buttonBox;
+    }
+    private void confirmInput(){
+
+    }
+    private void createNewCharacter(){
+        try {
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            //一个确认类型的对话框Alert
+            alert.setTitle("新建角色");
+            alert.setHeaderText("开始新的角色编辑");
+            alert.setContentText("确定要开始编辑新角色吗？当前窗口的所有输入将被重置。");
+            // 先获取默认的按钮类型
+            ButtonType defaultOkButton = ButtonType.OK;
+            ButtonType defaultCancelButton = ButtonType.CANCEL;
+            // 移除默认按钮
+            alert.getButtonTypes().removeAll(defaultOkButton, defaultCancelButton);
+            //我们选择使用新的按钮，因为默认按钮不能做到按enter键确定
+            ButtonType newCharacterButton = new ButtonType("新建角色", ButtonBar.ButtonData.OK_DONE);
+            ButtonType cancelButton = new ButtonType("我手滑了", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            alert.getButtonTypes().addAll(newCharacterButton, cancelButton);
+            //按 Enter 键默认会触发：
+            //具有 ButtonData.OK_DONE、ButtonData.YES、ButtonData.FINISH 类型的按钮
+            //如果没有上述按钮，则触发第一个定义的按钮
+            //OK_DONE, YES - 通常放在右侧，表示确认   CANCEL_CLOSE, NO - 通常放在左侧，表示取消
+            //APPLY, FINISH - 应用或完成   HELP - 帮助按钮
+            //LEFT, RIGHT - 控制左右位置   BIG_GAP, SMALL_GAP - 添加间距
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == newCharacterButton) {
+                //检查用户是否做出了选择（不是直接关闭对话框）同时点击了"确定"按钮
+                reuseCurrentWindows();
+            }
+        } catch (Exception e) {
+            showAlert("错误", "重新开始失败: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+    private void reuseCurrentWindows(){
+        Stage currentStage = (Stage) root.getScene().getWindow();
+        //getScene() 返回这个组件所在的 Scene 对象(CharacterApp类里面的scene)
+        //scene.getWindow() 获取包含这个 Scene 的 Window
+        // 我们使用Stage是因为 Window 只有基础功能 Stage 有更多控制方法，这样我们可以对窗口本身进行调整
+        double currentWidth = currentStage.getWidth();
+        double currentHeight = currentStage.getHeight();
+        //获取窗口的长度和宽度
+        double currentX = currentStage.getX();
+        double currentY = currentStage.getY();
+        //获得窗口在界面的x，y坐标，这样可以原位置新建窗口
+        boolean isMaximized = currentStage.isMaximized();
+        //窗口是否最大化
+        CharacterMainController newController = new CharacterMainController();
+        Scene newScene = new Scene(newController.getRoot(),currentWidth,currentHeight);//创建新场景
+        currentStage.setScene(newScene);//把当前窗口的场景变为新的
+        currentStage.setTitle("新建角色 - 角色信息录入系统");
+
+        // 恢复窗口位置和大小（如果不是最大化状态）
+        if (!isMaximized) {
+            currentStage.setX(currentX);
+            currentStage.setY(currentY);
+            currentStage.setWidth(currentWidth);
+            currentStage.setHeight(currentHeight);
+        }
+        showAlert("提示", "已开始编辑新角色", Alert.AlertType.INFORMATION);
+
+
+    }
+
     private GridPane createBasicInformationTab(){
         GridPane content = new GridPane();//GridPane布局可以像表格一样划分
         content.setHgap(10);//设置水平间距
@@ -162,7 +298,9 @@ public class CharacterMainController {
         content.add(damageTypeComboBox,1,6);
         return content;
     }
+
     private GridPane createSkillInformationTab(){
+        //嵌套布局，GirdPane包住ScrollPane包住skillsContainer
         GridPane content = new GridPane();
         content.setHgap(10);
         content.setVgap(15);
@@ -219,6 +357,7 @@ public class CharacterMainController {
 
         return content;
     }
+
     private GridPane createDetailedSkillPanel(String skillInformation){
         GridPane skillPane = new GridPane();
         skillPane.setHgap(10);
@@ -263,6 +402,7 @@ public class CharacterMainController {
 
         return skillPane;
     }
+
     private GridPane createSkillLevelSection
             (String skillLevel, Map<String, TextArea> describeMap,
              Map<String, TextArea> storyMap, Map<String, ComboBox<String>> typeMap) {
@@ -320,6 +460,7 @@ public class CharacterMainController {
 
         return levelPane;
     }
+
     private void addExtraSkills(VBox container){
         String extraSkillName = "额外神秘术_" + (System.currentTimeMillis());
         //System.currentTimeMillis()可以创建当前事件的时间戳，也就是显示创建时的时间字符串
@@ -361,19 +502,19 @@ public class CharacterMainController {
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         Label healthLabel = new Label("生命值");
-        healthField = attributesInput(30000,0,"10000");
+        healthField = createAttributeField(30000,0);
 
         Label attackLabel = new Label("攻击力");
-        attackField = attributesInput(2000,0,"1000");
+        attackField = createAttributeField(2000,0);
 
         Label realityDefenseLabel = new Label("现实防御");
-        realityDefenseField = attributesInput(2000,0,"500");
+        realityDefenseField = createAttributeField(2000,0);
 
         Label mentalDefenseLabel = new Label("精神防御");
-        mentalDefenseField = attributesInput(2000,0,"500");
+        mentalDefenseField = createAttributeField(2000,0);
 
         Label techniqueLabel = new Label("暴击技巧");
-        techniqueField = attributesInput(2000,0,"500");
+        techniqueField = createAttributeField(2000,0);
 
         content.add(titleLabel, 0, 0, 2, 1);
         content.add(healthLabel, 0, 1);
@@ -389,11 +530,12 @@ public class CharacterMainController {
 
         return content;
     }
-    private TextField attributesInput(int maxValue,int minValue,String defaultValue){
+
+    private TextField createAttributeField(int maxValue,int minValue){
         if (minValue > maxValue){
             throw new IllegalArgumentException("最大限制小于最小限制");
         }
-        TextField field = new TextField(defaultValue);
+        TextField field = new TextField();
         field.setPromptText(minValue + "~" + maxValue + "之间");
         field.textProperty().addListener
                 ((observable,oldValue,newValue) -> {
@@ -421,6 +563,7 @@ public class CharacterMainController {
                 });
         return field;
     }
+
     private ScrollPane createOtherInformationTab(){
         GridPane content = new GridPane();
         content.setHgap(10);
@@ -508,12 +651,174 @@ public class CharacterMainController {
         scrollPane.setStyle("-fx-background: white; -fx-border-color: #bdc3c7;");
         return scrollPane;
     }
-    private VBox createUsedTermInformationTab(){
-        return new VBox(new Label("开发中"));
+
+    private GridPane createUsedTermInformationTab(){
+        GridPane content = new GridPane();
+        content.setHgap(10);
+        content.setVgap(15);
+        content.setPadding(new Insets(20));
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setHgrow(Priority.NEVER);
+        col1.setPrefWidth(100);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setHgrow(Priority.NEVER);
+        col2.setPrefWidth(300);
+        content.getColumnConstraints().addAll(col1,col2);
+
+        int currentRow = 0;
+
+        Label usedTermTitle = new Label("专有名词");
+        content.add(usedTermTitle,0,currentRow,2,1);
+        currentRow++;
+        Label usedTermExplanation = new Label
+                ("专有名词指角色在技能，传承，塑造等地方出现的，含有特殊含意的词语，即在游戏中可以点击查看描述的就算专有名词");
+        content.add(usedTermExplanation,0,currentRow,2,1);
+        currentRow++;
+
+        Button addUsedTermButton = new Button("+ 添加专有名词");
+
+        VBox usedTermsContainer = new VBox(10);
+        usedTermsContainer.setStyle("-fx-padding: 10px; -fx-border-color: #bdc3c7; -fx-border-width: 1;");
+
+        addUsedTermButton.setOnAction(actionEvent -> addNewUsedTerm(usedTermsContainer));
+        content.add(addUsedTermButton,0,currentRow,2,1);
+        currentRow++;
+        ScrollPane scrollPane = new ScrollPane(usedTermsContainer);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefViewportHeight(300);
+        content.add(scrollPane,0,currentRow,2,1);
+        return content;
     }
+
+    private void addNewUsedTerm(VBox container) {
+        String newUsedTermName = "专有名词" + System.currentTimeMillis();
+        GridPane usedTermPane = new GridPane();
+        usedTermPane.setHgap(10);
+        usedTermPane.setVgap(12);
+        usedTermPane.setPadding(new Insets(15));
+        usedTermPane.setStyle("-fx-border-color: #bdc3c7; -fx-border-width: 1; -fx-background-color: #ecf0f1;");
+        int row = 0;
+        Label usedTermNameLabel = new Label("专有名词名称");
+        TextField usedTermNameField = new TextField();
+        usedTermPane.add(usedTermNameLabel,0,row);
+        usedTermPane.add(usedTermNameField,1,row);
+        row++;
+
+        Label usedTermDescribeLabel = new Label("专有名词描述");
+        TextArea usedTermDescribeArea = new TextArea();
+        usedTermDescribeArea.setPrefRowCount(3);
+        usedTermDescribeArea.setWrapText(true);
+        usedTermPane.add(usedTermDescribeLabel,0,row);
+        usedTermPane.add(usedTermDescribeArea,1,row);
+        row++;
+        // 添加删除按钮
+        Button deleteButton = new Button("删除");
+        deleteButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;");
+        usedTermPane.add(deleteButton, 0, row,2,1);
+        GridPane.setHalignment(deleteButton, HPos.RIGHT);
+        //这个可以设置一个组件靠右对齐（组件在的格子的右边）
+        row++;
+        // 创建包装容器
+        VBox termContainer = new VBox(5, usedTermPane);
+        container.getChildren().add(termContainer);
+
+        usedTermNameFields.put(newUsedTermName,usedTermNameField);
+        usedTermDescribeFields.put(newUsedTermName,usedTermDescribeArea);
+        deleteButton.setOnAction(actionEvent -> {
+            container.getChildren().remove(termContainer);
+            usedTermNameFields.remove(newUsedTermName);
+            usedTermDescribeFields.remove(newUsedTermName);
+        });
+    }
+
+    private void showAlert(String title, String message, Alert.AlertType type) {
+        //写这个方法主要是为了方便新建提示框
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
 
     public BorderPane getRoot() {
         return root;
     }
 
+    public TextField getIdField() {
+        return idField;
+    }
+
+    public TextField getNameField() {
+        return nameField;
+    }
+
+    public ComboBox<String> getAfflatusComboBox() {
+        return afflatusComboBox;
+    }
+
+    public ComboBox<String> getDamageTypeComboBox() {
+        return damageTypeComboBox;
+    }
+
+    public ComboBox<String> getGenderComboBox() {
+        return genderComboBox;
+    }
+
+    public Spinner<Integer> getRaritySpinner() {
+        return raritySpinner;
+    }
+
+    public TextField getAttackField() {
+        return attackField;
+    }
+
+    public TextField getHealthField() {
+        return healthField;
+    }
+
+    public TextField getRealityDefenseField() {
+        return realityDefenseField;
+    }
+
+    public TextField getMentalDefenseField() {
+        return mentalDefenseField;
+    }
+
+    public TextField getTechniqueField() {
+        return techniqueField;
+    }
+
+    public Map<String, TextField> getSkillNameFields() {
+        return skillNameFields;
+    }
+
+    public Map<String, Map<String, TextArea>> getSkillDescribeFields() {
+        return skillDescribeFields;
+    }
+
+    public Map<String, Map<String, TextArea>> getSkillStoryFields() {
+        return skillStoryFields;
+    }
+
+    public Map<String, Map<String, ComboBox<String>>> getSkillTypeFields() {
+        return skillTypeFields;
+    }
+
+    public Map<String, TextArea> getInheritanceFields() {
+        return inheritanceFields;
+    }
+
+    public Map<String, TextArea> getPortraitFields() {
+        return portraitFields;
+    }
+
+    public Map<String, TextField> getUsedTermNameFields() {
+        return usedTermNameFields;
+    }
+
+    public Map<String, TextArea> getUsedTermDescribeFields() {
+        return usedTermDescribeFields;
+    }
 }
