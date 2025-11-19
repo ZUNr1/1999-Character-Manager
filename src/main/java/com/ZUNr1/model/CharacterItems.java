@@ -12,6 +12,7 @@ public class CharacterItems {
     private String secondItemPrice;
     private String thirdItemPrice;
 
+    public CharacterItems(){}
     // 私有构造器
     private CharacterItems(CharacterItemsBuilder builder) {
         this.dressName = builder.dressName;

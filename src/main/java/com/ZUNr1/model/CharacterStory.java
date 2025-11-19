@@ -7,6 +7,7 @@ public class CharacterStory {
     private String firstStoryDescribe;
     private String secondStoryDescribe;
     private String thirdStoryDescribe;
+    public CharacterStory(){}
 
     private CharacterStory(CharacterStoryBuilder builder) {
         this.firstStoryName = builder.firstStoryName;

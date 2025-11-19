@@ -6,6 +6,7 @@ public class CharacterCoverInformation {
     private String characterFragrance;
     private String characterDetailedAfflatus;
 
+    public CharacterCoverInformation(){}
     private CharacterCoverInformation(CharacterCoverInformationBuilder builder) {
         this.characterIntroduction = builder.characterIntroduction;
         this.characterSize = builder.characterSize;

@@ -6,6 +6,11 @@ public class Attributes {
     private int realityDefense;
     private int mentalDefense;
     private int technique;
+    // 添加无参构造函数（Jackson需要）
+    /*todo 搞明白为什么json反序列化需要无参构造器*/
+    public Attributes() {
+        // Jackson会通过setter方法设置值
+    }
 
     public Attributes(int health, int attack, int realityDefense, int mentalDefense, int technique) {
         this.health = health;

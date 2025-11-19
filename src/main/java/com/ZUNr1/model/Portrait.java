@@ -8,6 +8,7 @@ public class Portrait {
     private String fourthPortrait;
     private String fifthPortrait;
 
+    public Portrait(){}
     private Portrait(PortraitBuilder portraitBuilder) {
         this.portraitDescribe = portraitBuilder.portraitDescribe;
         this.firstPortrait = portraitBuilder.firstPortrait;

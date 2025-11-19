@@ -1,4 +1,4 @@
-package com.ZUNr1.ui;
+package com.ZUNr1.ui.validation;
 
 import javafx.scene.Node;
 

@@ -108,6 +108,32 @@ public class CharacterManage {
             }
         }
     }
+    public boolean updateCharacters(String id, Characters updatedCharacter) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("角色ID不能为空");
+        }
+        if (updatedCharacter == null) {
+            throw new IllegalArgumentException("更新角色信息不能为null");
+        }
+        // 检查ID是否存在于系统中
+        Characters existingCharacter = charactersMap.get(id);
+        if (existingCharacter == null) {
+            System.out.println("未找到ID为 " + id + " 的角色");
+            return false;
+        }
+        // 检查新ID是否与现有ID冲突（如果ID被修改）
+        String newId = updatedCharacter.getId();
+        if (!id.equals(newId) && charactersMap.containsKey(newId)) {
+            System.out.println("ID " + newId + " 已存在，无法更新");
+            return false;
+        }
+        // 先移除旧的角色信息
+        removeCharacters(id);
+        // 添加更新后的角色信息
+        addCharacters(updatedCharacter);
+        System.out.println("已成功更新角色: " + updatedCharacter.getName());
+        return true;
+    }
 
     public void clearAll() {
         //清空所有内容
@@ -143,6 +169,32 @@ public class CharacterManage {
             }
         }
         return list;
+    }
+    public Characters findByNameExact(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return null;
+        }
+        String searchName = name.trim().toLowerCase();
+        for (Characters character : charactersList) {
+            if (character.getName().toLowerCase().equals(searchName)) {
+                return character;
+            }
+        }
+        return null;
+    }
+
+    public Characters findByEnNameExact(String enName) {
+        if (enName == null || enName.trim().isEmpty()) {
+            return null;
+        }
+        String searchEnName = enName.trim().toLowerCase();
+        for (Characters character : charactersList) {
+            String characterEnName = character.getEnName();
+            if (characterEnName != null && characterEnName.toLowerCase().equals(searchEnName)) {
+                return character;
+            }
+        }
+        return null;
     }
 
     public List<Characters> findByAfflatus(Afflatus afflatus) {

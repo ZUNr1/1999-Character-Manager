@@ -1,11 +1,11 @@
-package com.ZUNr1.ui;
+package com.ZUNr1.ui.service;
 
 import com.ZUNr1.enums.Afflatus;
 import com.ZUNr1.enums.DamageType;
 import com.ZUNr1.enums.Gender;
 import com.ZUNr1.enums.SkillType;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 public class CharacterFormData {
@@ -28,10 +28,10 @@ public class CharacterFormData {
     private int technique;
 
     // 技能信息
-    private Map<String, String> skillNames; // 技能名称 Map<"神秘术I", "技能名">
-    private Map<String, Map<String, String>> skillDescribes; // 技能描述 Map<"神秘术I", Map<"一星牌", "描述">>
-    private Map<String, Map<String, String>> skillStories;   // 技能故事
-    private Map<String, Map<String, SkillType>> skillTypes;     // 技能类型
+    private Map<String, String> skillNames = new HashMap<>();// 技能名称 Map<"神秘术I", "技能名">
+    private Map<String, Map<String, String>> skillDescribes = new HashMap<>(); // 技能描述 Map<"神秘术I", Map<"一星牌", "描述">>
+    private Map<String, Map<String, String>> skillStories = new HashMap<>();   // 技能故事
+    private Map<String, Map<String, SkillType>> skillTypes = new HashMap<>();     // 技能类型
 
     // 传承信息
     private String inheritanceName;
@@ -49,22 +49,22 @@ public class CharacterFormData {
     private String fifthPortrait;
 
     // 专有名词
-    private Map<String, String> usedTerms; // Map<"术语名", "术语描述">
+    private Map<String, String> usedTerms = new HashMap<>(); // Map<"术语名", "术语描述">
 
     // 狂想信息
-    private Map<String,String> euphoriaNames;
-    private Map<String, Map<String, String>> euphoriaDescribes; // 狂想ID -> 等级 -> 描述
-    private Map<String, Map<String, Integer>> euphoriaAttributes; // 狂想ID -> 属性类型 -> 数值
+    private Map<String,String> euphoriaNames = new HashMap<>();
+    private Map<String, Map<String, String>> euphoriaDescribes = new HashMap<>(); // 狂想ID -> 等级 -> 描述
+    private Map<String, Map<String, Integer>> euphoriaAttributes = new HashMap<>(); // 狂想ID -> 属性类型 -> 数值
 
     // 其他信息
     private String introduction;
     private String size;
     private String fragrance;
     private String detailedAfflatus;
-    private Map<String, String> dressNames; // 服装ID -> 服装名称
-    private Map<String, Map<String, String>> characterItems; // 单品ID -> 字段类型 -> 内容
-    private Map<String, String> storyNames; // 文化ID -> 文化名称
-    private Map<String, String> storyDescribes; // 文化ID -> 文化描述
+    private Map<String, String> dressNames = new HashMap<>(); // 服装ID -> 服装名称
+    private Map<String, Map<String, String>> characterItems = new HashMap<>(); // 单品ID -> 字段类型 -> 内容
+    private Map<String, String> storyNames = new HashMap<>(); // 文化ID -> 文化名称
+    private Map<String, String> storyDescribes = new HashMap<>(); // 文化ID -> 文化描述
     // 构造器
     public CharacterFormData() {}
 

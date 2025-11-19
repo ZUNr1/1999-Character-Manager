@@ -7,6 +7,7 @@ public class Euphoria {
     private String secondEuphoria;
     private String thirdEuphoria;
     private String fourthEuphoria;
+    public Euphoria(){}
     private Euphoria(EuphoriaBuilder euphoriaBuilder){
         this.euphoriaName = euphoriaBuilder.euphoriaName;
         this.euphoriaAttributesAddition = euphoriaBuilder.euphoriaAttributesAddition;

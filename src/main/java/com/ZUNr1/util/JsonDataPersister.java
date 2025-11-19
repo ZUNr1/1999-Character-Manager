@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 public class JsonDataPersister {
@@ -23,8 +24,11 @@ public class JsonDataPersister {
     public static void saveCharacters(List<JsonDataLoader.CharactersJson> characters) {
         //这个方法的目的是简化输入，我们调用保存东西的时候，只写数据，不用再写保存的位置了
         //相当于输入的时候不指定保存目录，我们选择默认的目录保存
-        saveCharacters(characters, "data/characters.json");
+        String userDataPath = JsonDataLoader.getUserDataPath();
+        //始终保存到用户数据目录，不修改内置数据
+        saveCharacters(characters,userDataPath);
     }
+
 
     public static void saveCharacters(List<JsonDataLoader.CharactersJson> characters, String filePath) {
         //这个方法是实际保存的方法，我们直接调用这个方法可以实现指定目录位置的保存，

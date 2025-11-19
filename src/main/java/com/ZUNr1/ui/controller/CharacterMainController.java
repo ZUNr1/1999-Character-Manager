@@ -1,7 +1,11 @@
 package com.ZUNr1.ui.controller;
 
-import com.ZUNr1.ui.CharacterFormData;
-import com.ZUNr1.ui.ValidationResult;
+import com.ZUNr1.model.Characters;
+import com.ZUNr1.service.CharacterConverter;
+import com.ZUNr1.service.CharacterStorageService;
+import com.ZUNr1.ui.service.CharacterDataService;
+import com.ZUNr1.ui.service.CharacterFormData;
+import com.ZUNr1.ui.validation.ValidationResult;
 import com.ZUNr1.ui.tab.*;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -24,6 +28,8 @@ public class CharacterMainController {
     private SkillInformationTab skillInformationTab;
     private OtherInformationTab otherInformationTab;
     private CharacterFormData formData;
+
+    private final CharacterStorageService storageService = new CharacterStorageService();
 
     public CharacterMainController(){
         this.formData = new CharacterFormData();
@@ -153,6 +159,73 @@ public class CharacterMainController {
                 result.getFocusNode().requestFocus();
             }
             return;
+        }
+
+        String duplicateError = checkDuplicateCharacter();
+        if (duplicateError != null) {
+            showAlert("重复角色", duplicateError, Alert.AlertType.ERROR);
+            return;
+        }
+        if (!showSaveConfirmation()) {
+            return;
+        }
+        saveForCharacterData();
+
+    }
+    private String checkDuplicateCharacter() {//先不保存，直接检查，过了才进行转换
+        String id = getIdField().getText().trim();
+        String name = getNameField().getText().trim();
+        String enName = getEnNameField().getText().trim();
+
+        return storageService.checkDuplicateCharacter(id, name, enName);
+    }
+    private boolean showSaveConfirmation() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("确认保存");
+        alert.setHeaderText("确认保存角色信息");
+        alert.setContentText("确定要保存这个角色吗？");
+
+        ButtonType saveButton = new ButtonType("确认保存", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("再检查一下", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(saveButton, cancelButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == saveButton;//按下按钮，同时获得的是save，排除直接关掉对话框的情况
+    }
+    private void saveForCharacterData(){
+        try{
+            CharacterDataService dataService = new CharacterDataService();
+            dataService.populateFormDataFromUI(formData,basicInformationTab,attributesInformationTab,
+                    skillInformationTab,progressionInformationTab,
+                    usedTermInformationTab,euphoriaInformationTab,
+                    otherInformationTab);
+            Characters character = CharacterConverter.convertToCharacter(formData);
+            storageService.saveCharacter(character);
+            showSaveSuccessAlert(character.getName());
+
+
+        }catch (Exception e){
+            showAlert("保存失败", "保存角色时出现错误: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+    private void showSaveSuccessAlert(String characterName) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("保存成功");
+        alert.setHeaderText("角色保存成功！");
+        alert.setContentText("角色 '" + characterName + "' 已成功保存到图鉴中。");
+
+        ButtonType newCharacterButton = new ButtonType("继续添加", ButtonBar.ButtonData.OK_DONE);
+        ButtonType finishButton = new ButtonType("完成", ButtonBar.ButtonData.FINISH);
+        alert.getButtonTypes().setAll(newCharacterButton, finishButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent()) {
+            if (result.get() == newCharacterButton) {
+                createNewCharacter();
+            } else {
+                System.out.println("角色保存完成");
+            }
         }
     }
     private ValidationResult validateAllTabs() {

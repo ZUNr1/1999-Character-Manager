@@ -13,6 +13,7 @@ public class Skills {
     private SkillDetail arcaneSkill2;
     private SkillDetail arcaneSkill3;
     private List<SkillDetail> extraSkills;
+    public Skills(){}
 
     private Skills(SkillsBuilder skillsBuilder) {
         this.arcaneSkill1 = skillsBuilder.arcaneSkill1;
@@ -62,7 +63,7 @@ public class Skills {
         private String skillName;
         //技能名字
         private Map<Integer, SkillInLevel> skillInLevel;
-
+        public SkillDetail(){}
         private SkillDetail(SkillDetailBuilder skillDetailBuilder) {
             this.skillName = skillDetailBuilder.skillName;
             this.skillInLevel = skillDetailBuilder.skillInLevelMap;
@@ -115,6 +116,7 @@ public class Skills {
         private String skillDescribe;
         private String skillStory;
         private SkillType skillType;
+        public SkillInLevel(){}
 
         public SkillInLevel(int level, String skillDescribe, String skillStory, SkillType skillType) {
             validate(level, skillDescribe, skillStory);

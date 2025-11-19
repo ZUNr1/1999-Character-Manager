@@ -1,4 +1,4 @@
-package com.ZUNr1.ui;
+package com.ZUNr1.ui.service;
 
 import com.ZUNr1.enums.Afflatus;
 import com.ZUNr1.enums.DamageType;
@@ -21,6 +21,13 @@ public class CharacterDataService {
                                        UsedTermInformationTab usedTermInformationTab,
                                        EuphoriaInformationTab euphoriaInformationTab,
                                        OtherInformationTab otherInformationTab) {
+        populateBasicInformation(formData, basicInformationTab);
+        populateAttributesInformation(formData, attributesInformationTab);
+        populateSkillsInformation(formData, skillInformationTab);
+        populateProgressionInformation(formData, progressionInformationTab);
+        populateUsedTermInformation(formData, usedTermInformationTab);
+        populateEuphoriaInformation(formData, euphoriaInformationTab);
+        populateOtherInformation(formData, otherInformationTab);
 
     }
     private void populateBasicInformation(CharacterFormData formData,BasicInformationTab basicInformationTab){
@@ -73,7 +80,7 @@ public class CharacterDataService {
             Map<String, SkillType> levelTypes = new HashMap<>();
             for (Map.Entry<String, ComboBox<String>> levelEntry : skillEntry.getValue().entrySet()) {
                 String selectedValue = levelEntry.getValue().getValue();
-                SkillType skillType = convertToSkillType(selectedValue);  // 需要实现这个转换方法
+                SkillType skillType = convertToSkillType(selectedValue);
                 levelTypes.put(levelEntry.getKey(), skillType);
             }
             skillTypes.put(skillEntry.getKey(), levelTypes);
@@ -127,14 +134,85 @@ public class CharacterDataService {
         formData.setEuphoriaDescribes(euphoriaDescribes);
         formData.setEuphoriaAttributes(euphoriaAttributes);
     }
-/* todo   private void populateProgressionInformation(CharacterFormData formData,ProgressionInformationTab progressionInformationTab){
+    private void populateProgressionInformation(CharacterFormData formData, ProgressionInformationTab progressionInformationTab) {
+        Map<String, TextArea> inheritanceFields = progressionInformationTab.getInheritanceFields();
+        Map<String, TextArea> portraitFields = progressionInformationTab.getPortraitFields();
 
+        // 传承信息
+        if (inheritanceFields != null) {
+            formData.setInheritanceName(getTextAreaText(inheritanceFields.get("inheritance")));
+            formData.setBasicInheritance(getTextAreaText(inheritanceFields.get("basicInheritance")));
+            formData.setFirstInheritance(getTextAreaText(inheritanceFields.get("firstInheritance")));
+            formData.setSecondInheritance(getTextAreaText(inheritanceFields.get("secondInheritance")));
+            formData.setThirdInheritance(getTextAreaText(inheritanceFields.get("thirdInheritance")));
+        }
+
+        // 塑造信息
+        if (portraitFields != null) {
+            formData.setPortraitDescribe(getTextAreaText(portraitFields.get("portraitDescribe")));
+            formData.setFirstPortrait(getTextAreaText(portraitFields.get("firstPortrait")));
+            formData.setSecondPortrait(getTextAreaText(portraitFields.get("secondPortrait")));
+            formData.setThirdPortrait(getTextAreaText(portraitFields.get("thirdPortrait")));
+            formData.setFourthPortrait(getTextAreaText(portraitFields.get("fourthPortrait")));
+            formData.setFifthPortrait(getTextAreaText(portraitFields.get("fifthPortrait")));
+        }
     }
-  todo  private void populateOtherInformation(CharacterFormData formData,OtherInformationTab otherInformationTab){
+    private void populateOtherInformation(CharacterFormData formData, OtherInformationTab otherInformationTab) {
+        // 封面信息
+        Map<String, TextArea> coverInformation = otherInformationTab.getCharacterCoverInformationFields();
+        if (coverInformation != null) {
+            formData.setIntroduction(getTextAreaText(coverInformation.get("introduction")));
+            formData.setSize(getTextAreaText(coverInformation.get("size")));
+            formData.setFragrance(getTextAreaText(coverInformation.get("fragrance")));
+            formData.setDetailedAfflatus(getTextAreaText(coverInformation.get("detailedAfflatus")));
+        }
 
+        // 服装信息
+        Map<String, String> dressNames = new HashMap<>();
+        for (Map.Entry<String, TextField> dressEntry : otherInformationTab.getDressNameFields().entrySet()) {
+            String dressName = dressEntry.getValue().getText().trim();
+            if (!dressName.isEmpty()) {
+                dressNames.put(dressEntry.getKey(), dressName);
+            }
+        }
+        formData.setDressNames(dressNames);
+
+        // 角色单品
+        Map<String, Map<String, String>> characterItems = new HashMap<>();
+        for (Map.Entry<String, Map<String, TextArea>> itemsEntry : otherInformationTab.getCharacterItemsFields().entrySet()) {
+            Map<String, String> itemData = new HashMap<>();
+            for (Map.Entry<String, TextArea> fieldEntry : itemsEntry.getValue().entrySet()) {
+                itemData.put(fieldEntry.getKey(), fieldEntry.getValue().getText());
+            }
+            characterItems.put(itemsEntry.getKey(), itemData);
+        }
+        formData.setCharacterItems(characterItems);
+
+        // 角色文化
+        Map<String, String> storyNames = new HashMap<>();
+        Map<String, String> storyDescribes = new HashMap<>();
+
+        Map<String, Map<String, TextArea>> storyFields = otherInformationTab.getCharacterStoryFields();
+        if (storyFields != null) {
+            Map<String, TextArea> nameMap = storyFields.get("names");
+            Map<String, TextArea> describeMap = storyFields.get("describes");
+
+            if (nameMap != null) {
+                for (Map.Entry<String, TextArea> entry : nameMap.entrySet()) {
+                    storyNames.put(entry.getKey(), entry.getValue().getText());
+                }
+            }
+
+            if (describeMap != null) {
+                for (Map.Entry<String, TextArea> entry : describeMap.entrySet()) {
+                    storyDescribes.put(entry.getKey(), entry.getValue().getText());
+                }
+            }
+        }
+
+        formData.setStoryNames(storyNames);
+        formData.setStoryDescribes(storyDescribes);
     }
-
- */
     private Gender convertToGender(String value) {
         if (value == null) return null;
         switch (value) {
@@ -188,6 +266,10 @@ public class CharacterDataService {
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+    // 安全的TextArea文本获取
+    private String getTextAreaText(TextArea textArea) {
+        return textArea != null ? textArea.getText() : "";
     }
 
 }

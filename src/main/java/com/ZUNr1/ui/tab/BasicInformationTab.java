@@ -1,7 +1,7 @@
 package com.ZUNr1.ui.tab;
 
-import com.ZUNr1.ui.CharacterFormData;
-import com.ZUNr1.ui.ValidationResult;
+import com.ZUNr1.ui.service.CharacterFormData;
+import com.ZUNr1.ui.validation.ValidationResult;
 import javafx.geometry.Insets;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;

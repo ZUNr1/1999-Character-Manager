@@ -7,6 +7,8 @@ import com.ZUNr1.model.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +23,34 @@ public class JsonDataLoader {
         // 这是假如json中有类中没有声明的东西，原本会UnsupportedOperationException
         //加上这个configure忽略了未知字段，就避免了报错
     }
-
     public static List<CharactersJson> loadCharacters() {
+        // 1. 先尝试加载用户数据（可修改）
+        List<CharactersJson> userData = loadUserData();
+        if (!userData.isEmpty()) {
+            return userData;
+        }
+        // 2. 如果没有用户数据，加载内置默认数据
+        return loadDefaultData();
+    }
+    private static List<CharactersJson> loadUserData(){
+        String userDataPath = getUserDataPath();
+        File userFile = new File(userDataPath);
+        if (userFile.exists()){
+            //try-with-resources 语法
+            try (InputStream inputStream = new FileInputStream(userFile)) {
+                //new FileInputStream(userFile) - 创建文件输入流
+                //mapper.readValue(inputStream, CharactersData.class) - Jackson将JSON转换为Java对象
+                CharactersData data = mapper.readValue(inputStream, CharactersData.class);
+                return data.characters != null ? data.characters : new ArrayList<>();
+            } catch (Exception e) {
+                System.err.println("加载用户数据失败，使用默认数据: " + e.getMessage());
+            }
+        }
+        return new ArrayList<>();
+    }
+
+
+    private static List<CharactersJson> loadDefaultData() {
         //这是从classpath加载JSON数据的标准方法，
         try (InputStream inputStream = JsonDataLoader.class.getClassLoader()
                 .getResourceAsStream("data/characters.json")) {
@@ -33,7 +61,8 @@ public class JsonDataLoader {
             // 让类加载器从特定路径读取文件，并返回一个数据流
 
             if (inputStream == null) {
-                throw new RuntimeException("在classpath中找不到文件: data/characters.json");
+                System.out.println("内置文件有问题，返回空链表");
+                return new ArrayList<>();
             }
 
             CharactersData data = mapper.readValue(inputStream, CharactersData.class);
@@ -47,6 +76,12 @@ public class JsonDataLoader {
             //这个异常是要catch的
         }
         //上述代码是一个try-with-resources，相当于在finally语句块中关闭了input流
+    }
+    public static String getUserDataPath(){//这个方法要public，因为持久化类也要使用
+        String userHome = System.getProperty("user.home");
+        //Java 中的 System 类有一个 Properties 对象，用于存储当前工作环境的不同属性和配置。它还保存用户的主目录。
+        //我们可以使用此类的 getProperty() 方法访问这些属性。"user.home"就是获得用户的主目录（c盘用户）
+        return userHome + "/.zunr1-guide/characters.json";
     }
 
     public static class CharactersJson {

@@ -1,6 +1,6 @@
 package com.ZUNr1.ui.tab;
 
-import com.ZUNr1.ui.CharacterFormData;
+import com.ZUNr1.ui.service.CharacterFormData;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;

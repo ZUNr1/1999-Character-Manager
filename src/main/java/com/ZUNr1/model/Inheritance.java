@@ -6,7 +6,7 @@ public class Inheritance {
     private String firstInheritance;
     private String secondInheritance;
     private String thirdInheritance;
-
+    public Inheritance(){}
     private Inheritance(InheritanceBuilder inheritanceBuilder) {
         this.inheritanceName = inheritanceBuilder.inheritanceName;
         this.basicInheritance = inheritanceBuilder.basicInheritance;

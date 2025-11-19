@@ -9,6 +9,7 @@ public class OtherInformation {
     private List<CharacterItems> characterItems;
     private CharacterStory characterStory;
 
+    public OtherInformation(){}
     private OtherInformation(OtherInformationBuilder builder) {
         this.characterCoverInformation = builder.characterCoverInformation;
         this.dressName = new ArrayList<>(builder.dressName); // 防御性拷贝

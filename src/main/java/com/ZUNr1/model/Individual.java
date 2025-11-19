@@ -20,7 +20,7 @@ public abstract class Individual {
     protected DamageType damageType;
     protected Attributes attributes;
     protected Skills skills;
-    protected List<String> usedTerm;
+    protected List<String> usedTerm;//只保留名称，不保留描述，描述使用专门的词典查询
 
     protected Individual(Builder builder) {
         this.id = builder.id;
