@@ -15,9 +15,10 @@ import java.util.List;
 
 public class JsonDataLoader {
     private static final ObjectMapper mapper = new ObjectMapper();
-
     //ObjectMapper是jackson的类，用于序列化与反序列化，实现json和Java互转的类
+
     static {
+        //static块为静态初始化块，在类加载的时候执行，且只执行一次
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         // 配置：忽略JSON中的未知字段
         // 这是假如json中有类中没有声明的东西，原本会UnsupportedOperationException
@@ -34,6 +35,7 @@ public class JsonDataLoader {
     }
     private static List<CharactersJson> loadUserData(){
         String userDataPath = getUserDataPath();
+        //先找到地址
         File userFile = new File(userDataPath);
         if (userFile.exists()){
             //try-with-resources 语法
@@ -41,6 +43,9 @@ public class JsonDataLoader {
                 //new FileInputStream(userFile) - 创建文件输入流
                 //mapper.readValue(inputStream, CharactersData.class) - Jackson将JSON转换为Java对象
                 CharactersData data = mapper.readValue(inputStream, CharactersData.class);
+                //为什么jackson可以把一个实际为Characters的类转换为CharactersData类呢
+                //因为jackson会默认使用字段名与其匹配，（注意不区分大小写），
+                //比如将字段id，直接录入到指定的类的字段名为id
                 return data.characters != null ? data.characters : new ArrayList<>();
             } catch (Exception e) {
                 System.err.println("加载用户数据失败，使用默认数据: " + e.getMessage());
@@ -86,6 +91,9 @@ public class JsonDataLoader {
 
     public static class CharactersJson {
         //这个内部类是存放从json中读取到的Character类型，分类放好
+        //jackson可以把一个实际为Characters的类转换为CharactersData类呢
+        //因为jackson会默认使用字段名与其匹配，（注意不区分大小写），id就转为id字段
+        //只要字段对应，都有，就可以正常读取
         public String id;
         public String name;
         public String enName;

@@ -9,6 +9,7 @@ public enum Afflatus {
     PLANT(4, "木系"),
     SPIRIT(-1, "灵系"),
     INTELLECT(-2, "智系");
+    //关于要不要添加UNKNOWN类型，我选择不添加，因为每个角色是必须要的信息，而且每个枚举还有附加的信息
     private final int type;
     private final String chineseName;
 

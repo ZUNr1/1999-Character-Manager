@@ -3,6 +3,7 @@ module com.ZUNr1 {
     requires javafx.fxml;
     requires com.fasterxml.jackson.databind;
     requires javafx.graphics;
+    requires java.sql;
 
     // 关键修复：导出 ui 包给 javafx.graphics
     exports com.ZUNr1.ui to javafx.graphics;

@@ -8,7 +8,7 @@ import com.ZUNr1.util.JsonDataPersister;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CharactersDao {
+public class CharactersJsonDao {
     //DAO层是专门负责所有数据与文件交换的层，我们实现json与java互换就在这里实现
     //我们先高搞从json加载，我们想，要加载进Manage，是不是先对Manage原有的数据清除，不然冲突了
     //是不是都要clearAll？不知道，但是做两手准备比较好

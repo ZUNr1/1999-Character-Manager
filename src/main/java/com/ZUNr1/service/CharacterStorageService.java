@@ -1,13 +1,13 @@
 package com.ZUNr1.service;
 
-import com.ZUNr1.dao.CharactersDao;
+import com.ZUNr1.dao.CharactersJsonDao;
 import com.ZUNr1.manager.CharacterManage;
 import com.ZUNr1.model.Characters;
 
 import java.util.List;
 
 public class CharacterStorageService {
-    private final CharactersDao charactersDao = new CharactersDao();
+    private final CharactersJsonDao charactersJsonDao = new CharactersJsonDao();
     private final CharacterManage characterManage = new CharacterManage();
     public CharacterStorageService() {
         // 启动时自动加载现有数据
@@ -36,7 +36,7 @@ public class CharacterStorageService {
     }
     public void loadAllCharacters() {
         try {
-            charactersDao.loadToManageOverride(characterManage);
+            charactersJsonDao.loadToManageOverride(characterManage);
             System.out.println("角色数据加载完成，共 " + characterManage.getTotalNumber() + " 个角色");
         } catch (Exception e) {
             System.err.println("加载角色数据失败: " + e.getMessage());
@@ -56,7 +56,7 @@ public class CharacterStorageService {
     }
     public void persistToFile() {
         try {
-            charactersDao.saveFromManage(characterManage);
+            charactersJsonDao.saveFromManage(characterManage);
             System.out.println("角色数据已保存到文件");
         } catch (Exception e) {
             throw new RuntimeException("保存到文件失败: " + e.getMessage(), e);

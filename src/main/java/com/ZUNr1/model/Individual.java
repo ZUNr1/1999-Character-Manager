@@ -3,6 +3,7 @@ package com.ZUNr1.model;
 import com.ZUNr1.enums.Afflatus;
 import com.ZUNr1.enums.DamageType;
 import com.ZUNr1.enums.Gender;
+import com.ZUNr1.util.JsonConverter;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +27,7 @@ public abstract class Individual {
         this.id = builder.id;
         this.name = builder.name;
         this.enName = builder.enName;
+        this.isCustom = builder.isCustom;
         this.creator = builder.creator;//因为少了这一行，导致出问题，找了一个小时
         this.gender = builder.gender;
         this.afflatus = builder.afflatus;
@@ -33,6 +35,12 @@ public abstract class Individual {
         this.attributes = builder.attributes;
         this.skills = builder.skills;
         this.usedTerm = builder.usedTerm;
+    }
+    public String getAttributesJson(){
+        return JsonConverter.toString(attributes);
+    }
+    public void setAttributesJson(String json){
+        this.attributes = JsonConverter.fromJson(json,Attributes.class);
     }
 
     public String getId() {
