@@ -66,14 +66,15 @@ public class CharactersMysqlDao {
         //我们将ResultSet获得的数据先存在CharactersJson中转里面
         json.id = resultSet.getString("id");
         //ResultSet这个先指定行，然后可以读取这个行的字段，getInt可以返回int，同理像getBoolean这样
+
         json.name = resultSet.getString("name");
         json.enName = resultSet.getString("en_name");
-        json.gender = Gender.valueOf(resultSet.getString("gender"));
-        //枚举类型可以使用默认实现的valueOf，直接String转换为对应的枚举类
+        json.gender = parseEnum(resultSet.getString("gender"),Gender.class,Gender.OTHER);
+        //枚举类型可以使用默认实现的valueOf，直接String转换为对应的枚举类，但是我们要明白，要是数据库的枚举是非法的不存在的，会抛异常，要捕获
         json.isCustom = resultSet.getBoolean("is_custom");
         json.creator = resultSet.getString("creator");
-        json.afflatus = Afflatus.valueOf(resultSet.getString("afflatus"));
-        json.damageType = DamageType.valueOf(resultSet.getString("damage_type"));
+        json.afflatus = parseEnum(resultSet.getString("afflatus"), Afflatus.class,Afflatus.STAR);
+        json.damageType = parseEnum(resultSet.getString("damage_type"), DamageType.class,DamageType.GENESIS);
         json.rarity = resultSet.getInt("rarity");
 
         //下面是对json格式的数据库列的处理，我用了自制类JsonConverter，方便转换
@@ -127,6 +128,18 @@ public class CharactersMysqlDao {
                 .otherInformation(json.otherInformation)
                 .build();
         return character;
+    }
+    private <T extends Enum<T>> T parseEnum(String value,Class<T> enumClass,T defaultValue){//读取的时候用
+        if (value == null || value.trim().isEmpty()){
+            return defaultValue;
+        }
+        try {
+            return Enum.valueOf(enumClass,value);
+            //假如数据库有未定义的非法枚举，这代码会抛异常，虽然不强制要求处理，但是还是处理一下，出错就返回默认值
+        }catch (IllegalArgumentException e){
+            System.err.println("枚举转换失败，使用默认值: " + value + " → " + defaultValue.name());
+            return defaultValue;
+        }
     }
     public void saveFromManagerOverride(CharacterManage manage){
         saveFromManager(manage,true);
@@ -277,9 +290,9 @@ public class CharactersMysqlDao {
         preparedStatement.setInt(index++,character.getRarity());
 
         //枚举类需要处理空指针异常，对于枚举类特有的默认实现的name方法会抛这个异常，我们用单独的方法处理
-        setEnumField(preparedStatement, index++, character.getGender());
-        setEnumField(preparedStatement, index++, character.getAfflatus());
-        setEnumField(preparedStatement, index++, character.getDamageType());
+        setEnumField(preparedStatement, index++, character.getGender(),"OTHER");
+        setEnumField(preparedStatement, index++, character.getAfflatus(),"STAR");
+        setEnumField(preparedStatement, index++, character.getDamageType(),"GENESIS");
 
         //json字段要写个方法单独处理
         setJsonField(preparedStatement,index++,character.getAttributes());
@@ -293,26 +306,14 @@ public class CharactersMysqlDao {
 
 
     }
-    private void setEnumField(PreparedStatement preparedStatement,int index,Enum<?> enumValue)
+    private void setEnumField(PreparedStatement preparedStatement,int index,Enum<?> enumValue,String defaultValue)//写入的时候用
             throws SQLException{
         if (enumValue != null){
             preparedStatement.setString(index,enumValue.name());
             //一般的类是没有默认实现的name方法的，枚举类有，返回的是枚举的字符串(全大写的那个)
         }else {
             //这里不能一并设置为null，有默认值的，我们mysql指定了not null
-            switch (index) {
-                case 7: // gender字段位置
-                    preparedStatement.setString(index, "OTHER");
-                    break;
-                case 8: // afflatus字段位置
-                    preparedStatement.setString(index, "STAR");
-                    break;
-                case 9: // damage_type字段位置
-                    preparedStatement.setString(index, "GENESIS");
-                    break;
-                default:
-                    preparedStatement.setString(index, ""); // 其他情况给空字符串
-            }
+            preparedStatement.setString(index,defaultValue);
         }
 
     }
@@ -328,6 +329,36 @@ public class CharactersMysqlDao {
             //setNull方法也是需要两个，一个是对应的问号，另一个是这个字段在mysql里面的类型，这里是VARCHAR
         }
 
+    }
+    public int getCount(){
+        String countSql = "SELECT COUNT(*) FROM " + TABLE_NAME;
+        try (Connection connection = DataBaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(countSql);
+             ResultSet resultSet = preparedStatement.executeQuery()){
+            //有注入sql语句就用PreparedStatement，有接收就加上ResultSet
+            if (resultSet.next()){
+                //next即游标向下移动一行，存在数据返回true
+                return resultSet.getInt(1);
+                //get第一列的int类型数据
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public boolean deleteById(String id){
+        String deleteSql = "DELETE FROM " + TABLE_NAME + " WHERE id = ?";
+        try (Connection connection = DataBaseConnection.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(deleteSql)){
+            preparedStatement.setString(1,id);
+            int affectedRows = preparedStatement.executeUpdate();
+            System.out.println("删除了 " + affectedRows + " 行");
+            return affectedRows > 0;
+        }catch (SQLException e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private void clearTable(){
