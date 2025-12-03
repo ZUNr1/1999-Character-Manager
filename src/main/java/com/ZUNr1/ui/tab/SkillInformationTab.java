@@ -172,7 +172,7 @@ public class SkillInformationTab {
 
         Label typeLabel = new Label("神秘术类型");
         ComboBox<String> skillTypeComBox = new ComboBox<>();
-        skillTypeComBox.getItems().addAll("攻击","增益","减益","治疗","吟诵","特殊","即兴咒语");
+        skillTypeComBox.getItems().addAll("攻击","增益","减益","治疗","吟诵","反制","特殊","即兴咒语");
 
         typeMap.put(skillLevel, skillTypeComBox);
 

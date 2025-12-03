@@ -6,6 +6,7 @@ public enum SkillType {
     DEBUFF("减益"),
     HEALTH("治疗"),
     CHANNEL("吟诵"),
+    COUNTER("反制"),
     VERSATILE("特殊"),
     IMPROMPTU("即兴咒语");
     private final String chineseName;

@@ -1,4 +1,4 @@
-db.url=jdbc:mysql://localhost:3306/character_guide?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+db.url=jdbc:mysql://localhost:3306/characters_guide?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
 db.username=root
 db.password=YOUR_PASSWORD_HERE
 db.driver=com.mysql.cj.jdbc.Driver

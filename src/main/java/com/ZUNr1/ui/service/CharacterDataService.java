@@ -257,6 +257,7 @@ public class CharacterDataService {
             case "减益": return SkillType.DEBUFF;
             case "治疗": return SkillType.HEALTH;
             case "吟诵": return SkillType.CHANNEL;
+            case "反制": return SkillType.COUNTER;
             case "特殊": return SkillType.VERSATILE;
             case "即兴咒语": return SkillType.IMPROMPTU;
             default: return null;

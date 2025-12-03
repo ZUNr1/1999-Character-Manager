@@ -115,7 +115,7 @@ public class SkillInformationViewTab {
 
         Label typeLabel = new Label("技能类型:");
         typeLabel.setStyle("-fx-font-weight: bold;");
-        Label typeValueLabel = new Label(level.getSkillType() != null ? level.getSkillType().toString() : "未指定");
+        Label typeValueLabel = new Label(level.getSkillType() != null ? level.getSkillType().getChineseName() : "未指定");
         levelBox.getChildren().addAll(levelLabel,describeLabel,describeValueLabel,storyLabel,storyValueLabel,typeLabel,typeValueLabel);
         return levelBox;
     }
