@@ -5,10 +5,13 @@ import com.ZUNr1.enums.DamageType;
 import com.ZUNr1.enums.Gender;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public final class Characters extends Individual {
     private Inheritance inheritance;
+    //这种字段，应该让其类的本身为不可变类
     private Portrait portrait;
     private List<Euphoria> euphoria;
     private OtherInformation otherInformation;
@@ -37,7 +40,12 @@ public final class Characters extends Individual {
     }
 
     public List<Euphoria> getEuphoria() {
-        return euphoria;
+        if (euphoria == null){
+            return Collections.emptyList();
+            //返回空的不可变表
+        }
+        return Collections.unmodifiableList(euphoria);
+        //对于不可变对象中的字段，我们应该尽量让其不可变，这里返回的是不可变的list版本，或者直接返回新对象副本
     }
 
     public OtherInformation getOtherInformation() {
@@ -147,5 +155,23 @@ public final class Characters extends Individual {
         }
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        //先检查是不是同一个对象，节省性能
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        //再检查空指针和是不是同一个Class
+        Characters character = (Characters)obj;
+        return Objects.equals(id,character.id);
+        //Objects的equals可以处理id为null的情况，不用我们再手动检查
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

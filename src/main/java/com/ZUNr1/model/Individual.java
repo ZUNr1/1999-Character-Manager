@@ -5,6 +5,7 @@ import com.ZUNr1.enums.DamageType;
 import com.ZUNr1.enums.Gender;
 import com.ZUNr1.util.JsonConverter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -72,7 +73,10 @@ public abstract class Individual {
     }
 
     public List<String> getUsedTerm() {
-        return usedTerm;
+        if (usedTerm == null){
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(usedTerm);
     }
 
     public Skills getSkills() {

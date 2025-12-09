@@ -1,4 +1,11 @@
-db.url=jdbc:mysql://localhost:3306/characters_guide?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
-db.username=root
-db.password=YOUR_PASSWORD_HERE
-db.driver=com.mysql.cj.jdbc.Driver
+
+JdbcUrl=jdbc:mysql://localhost:3306/characters_guide?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+username=root
+password=please print your password
+driverClassName=com.mysql.cj.jdbc.Driver
+
+maximumPoolSize=10
+minimumIdle=5
+connectionTimeout=30000
+idleTimeout=600000
+maxLifetime=1800000

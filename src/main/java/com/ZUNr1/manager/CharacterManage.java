@@ -5,10 +5,8 @@ import com.ZUNr1.enums.DamageType;
 import com.ZUNr1.enums.Gender;
 import com.ZUNr1.model.Characters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CharacterManage {
     //处理数据存放数据的类
@@ -152,36 +150,24 @@ public class CharacterManage {
     }
 
     public List<Characters> findByName(String name) {
-        //这里要实现模糊搜素，找到符合的所有掘金
-        if (name == null || name.trim().isEmpty()) {
-            //检查传入值，对于String，一般看是不是空指针或者去掉空格还是空的
-            return new ArrayList<>();//return的也不能是null啊
+        if (name == null || name.trim().isEmpty()){
+            return new ArrayList<>();
         }
-        List<Characters> list = new ArrayList<>();
-        String newName = name.toLowerCase().trim();
-        //把名字变成小写的，不看大小写
-        for (Characters characters : charactersList) {
-            String newCharactersName = characters.getName().toLowerCase().trim();
-            //统一变小写去空格
-            if (newCharactersName.contains(newName)) {
-                //只要contains就行
-                list.add(characters);
-            }
-        }
+        String newName = name.trim().toLowerCase();
+        List<Characters> list = charactersList.stream()
+                .filter(character -> character.getName().trim().toLowerCase().contains(newName))
+                .toList();
         return list;
     }
     public List<Characters> findByEnName(String enName){
         if (enName == null || enName.trim().isEmpty()){
             return new ArrayList<>();
         }
-        String lowerEnName = enName.trim().toLowerCase();
-        List<Characters> list = new ArrayList<>();
-        for (Characters characters : charactersList){
-            String newCharactersEnName = characters.getEnName().toLowerCase().trim();
-            if (newCharactersEnName.contains(lowerEnName)){
-                list.add(characters);
-            }
-        }
+        String newName = enName.trim().toLowerCase();
+        List<Characters> list = charactersList.stream()
+                .filter(character -> character.getEnName().trim().toLowerCase().contains(newName))
+                .toList();
+        //toList是java16新加的方法，类似于获取不可变对象.collect(Collectors.toUnmodifiableList());，更加简洁，注意不能修改
         return list;
     }
     public Characters findByNameExact(String name) {
@@ -189,26 +175,27 @@ public class CharacterManage {
             return null;
         }
         String searchName = name.trim().toLowerCase();
-        for (Characters character : charactersList) {
-            if (character.getName().toLowerCase().equals(searchName)) {
-                return character;
-            }
-        }
-        return null;
+        Optional<Characters> optional = charactersList.stream()
+                .filter(character ->
+                        character.getName().trim().toLowerCase().equals(searchName))
+                .findFirst();
+        return optional.orElse(null);
+        //orElse相当于optional.isPresent() ? optional.get() : null;
+        // 就是先看optional的存不存在，不存在就返回指定默认值(类型还是相同的)
     }
 
     public Characters findByEnNameExact(String enName) {
+        //用于输入的适合检查角色名是否存在
         if (enName == null || enName.trim().isEmpty()) {
             return null;
         }
         String searchEnName = enName.trim().toLowerCase();
-        for (Characters character : charactersList) {
-            String characterEnName = character.getEnName();
-            if (characterEnName != null && characterEnName.toLowerCase().equals(searchEnName)) {
-                return character;
-            }
-        }
-        return null;
+        Optional<Characters> optional = charactersList.stream()
+                .filter(character ->
+                        character.getEnName().trim().toLowerCase().equals(searchEnName))
+                .findFirst();
+        return optional.orElse(null);
+
     }
 
     public List<Characters> findByAfflatus(Afflatus afflatus) {
@@ -272,15 +259,30 @@ public class CharacterManage {
     }
 
     public Map<Integer, Integer> getRarityStatistics() {
-        //根据稀有度分类，返回所有稀有度对应的角色数量
-        Map<Integer, Integer> map = new HashMap<>();
-        for (Characters characters : charactersList) {
-            int rarity = characters.getRarity();
-            map.put(rarity, map.getOrDefault(rarity, 0) + 1);
-            //getOrDefault方法，后面两个值，表示使用左边的参数，如果空就返回后面的参数，如果不空就正常get
-            //这里就是实现了从0开始数数
+        if (charactersList.size() < 1000){
+            //小数据量用传统循环，大数据量用stream流
+            //根据稀有度分类，返回所有稀有度对应的角色数量
+            Map<Integer, Integer> map = new HashMap<>();
+            for (Characters characters : charactersList) {
+                int rarity = characters.getRarity();
+                map.put(rarity, map.getOrDefault(rarity, 0) + 1);
+                //getOrDefault方法，后面两个值，表示使用左边的参数，如果空就返回后面的参数，如果不空就正常get
+                //这里就是实现了从0开始数数
+            }
+            return map;
+        }else {
+            Map<Integer,Integer> map = charactersList.stream()
+                    .collect(Collectors.groupingBy(
+                            Characters::getRarity,
+                            Collectors.collectingAndThen(
+                                    Collectors.counting(),
+                                    Long::intValue
+                            )
+                    ));
+            //虽然没什么必要，但是作为练习还是写一下流的形式吧，
+            //Collectors.collectingAndThen可以添加多个，一个是counting统计数据，另一个把long变为int
+            return map;
         }
-        return map;
     }
 
     public Map<Afflatus, Integer> getAfflatusStatistics() {

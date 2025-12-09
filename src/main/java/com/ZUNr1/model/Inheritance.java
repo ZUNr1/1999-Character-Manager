@@ -1,6 +1,6 @@
 package com.ZUNr1.model;
-
-public class Inheritance {
+//todo后续引入spring boot后要将其变成完全不可变，去掉无参构造器，使用jackson的注解等各种方法
+public final class Inheritance {
     private String inheritanceName;
     private String basicInheritance;
     private String firstInheritance;

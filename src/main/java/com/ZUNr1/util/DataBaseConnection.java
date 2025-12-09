@@ -20,6 +20,7 @@ public class DataBaseConnection {
         // 原因：连接池提供更好的性能和管理能力
         try (InputStream input = DataBaseConnection.class.getClassLoader()
                 .getResourceAsStream("db.properties")){
+            //FileInputStream也可以读取配置文件流，但是使用这个类本身的类加载器更加通用，各种情况都可以用
             if (input == null) {
                 throw new RuntimeException("请创建 db.properties 文件，参考 db.properties.template");
             }//是否找到这个文件，如果InputStream为null，说明classpath中不存在这个文件
